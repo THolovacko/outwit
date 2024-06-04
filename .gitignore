@@ -55,4 +55,5 @@ dkms.conf
 /Build
 .DS_Store
 *.swp
-!/dependencies/**/
+
+!libraylib.a
