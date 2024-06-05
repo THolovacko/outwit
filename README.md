@@ -1,5 +1,3 @@
-# Outwit
-
 ## Tom's Tech Stack
 * MacBook Pro; 14-inch, Nov 2023; Apple M3 Max; 36 GB; macOS Sonoma 14.5
 
