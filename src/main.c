@@ -5,6 +5,13 @@
 void update_draw_frame(void);
 EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *ui_event, void *user_data);
 void request_fullscreen();
+void draw_texture_with_size(Texture2D texture, const Vector2 origin, const Vector2 size);
+
+Texture2D kaboom_img;
+RenderTexture2D render_texture;
+
+#define RESOLUTION_WIDTH  3840
+#define RESOLUTION_HEIGHT 2160
 
 int main(void)
 {
@@ -15,9 +22,14 @@ int main(void)
         emscripten_get_element_css_size("canvas", &width, &height);
         int screen_width  = (int)width;
         int screen_height = (int)height;
+        SetConfigFlags(FLAG_MSAA_4X_HINT);
         SetWindowState(FLAG_WINDOW_RESIZABLE);
         InitWindow(screen_width, screen_height, GAME_TITLE);
     }
+
+    render_texture = LoadRenderTexture(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+    SetTextureFilter(render_texture.texture, TEXTURE_FILTER_BILINEAR);
+    kaboom_img = LoadTexture("resources/kaboom.png");
 
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, resize_callback);
     emscripten_set_main_loop(update_draw_frame, 0, 1);
@@ -30,22 +42,32 @@ int main(void)
 
 void update_draw_frame(void)
 {
-    BeginDrawing();
+    BeginTextureMode(render_texture);
+    {
         ClearBackground(BLACK);
 
-        int screen_width  = GetScreenWidth();
-        int screen_height = GetScreenHeight();
+        const int resolution_width  = render_texture.texture.width;
+        const int resolution_height = render_texture.texture.height;
 
-        const char *text = "Hello, World!";
-        int font_size    = 20;
+        const char *text = "Hello, World";
+        int font_size    = 60;
 
         int text_width = MeasureText(text, font_size);
 
-        int pos_x = (screen_width  - text_width) / 2;
-        int pos_y = (screen_height - font_size)  / 2;
+        int pos_x = (resolution_width  - text_width) / 2;
+        int pos_y = (resolution_height - font_size)  / 2;
 
+        draw_texture_with_size(kaboom_img, (Vector2){ 0.0f, 0.0f }, (Vector2){ kaboom_img.width, kaboom_img.height });
         DrawText(text, pos_x, pos_y, font_size, LIGHTGRAY);
+    }
+    EndTextureMode();
 
+    //GenTextureMipmaps(&render_texture.texture);
+
+    BeginDrawing();
+        Rectangle source_rec = { 0.0f, 0.0f, (float)render_texture.texture.width, ((float)render_texture.texture.height) * -1.0f };
+        Rectangle dest_rec   = { 0.0f, 0.0f, GetScreenWidth(), GetScreenHeight() };
+        DrawTexturePro(render_texture.texture, source_rec, dest_rec, (Vector2){ 0.0f, 0.0f }, 0.0f, WHITE);
     EndDrawing();
 }
 
@@ -74,4 +96,10 @@ void request_fullscreen() {
             canvas.msRequestFullscreen();
         }
     });
+}
+
+void draw_texture_with_size(Texture2D texture, const Vector2 origin, const Vector2 size) {
+    Rectangle source_rec = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
+    Rectangle dest_rec   = { 0.0f, 0.0f, size.x, size.y };
+    DrawTexturePro(texture, source_rec, dest_rec, origin, 0.0f, WHITE);
 }

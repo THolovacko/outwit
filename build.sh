@@ -21,7 +21,7 @@
 
 mkdir -p ./Build/HTML5
 rm -fr ./Build/HTML5/*
-emcc -o ./Build/HTML5/Outwit.html ./src/main.c -Os -Wall ./dependencies/raylib-06-04-2024/raylib/src/libraylib.a -I. -Idependencies/raylib-06-04-2024/raylib/src -L. -Ldependencies/raylib-06-04-2024/raylib/src -s USE_GLFW=3 --shell-file ./shell.html -DPLATFORM_WEB -s TOTAL_MEMORY=67108864 -DGAME_TITLE='"Outwit"'
+emcc -o ./Build/HTML5/Outwit.html ./src/main.c -Os -Wall ./dependencies/raylib-06-04-2024/raylib/src/libraylib.a -I. -Idependencies/raylib-06-04-2024/raylib/src -L. -Ldependencies/raylib-06-04-2024/raylib/src -s USE_GLFW=3 --shell-file ./shell.html --preload-file ./resources -DPLATFORM_WEB -s TOTAL_MEMORY=67108864 -DGAME_TITLE='"Outwit"'
 mv ./Build/HTML5/Outwit.html ./Build/HTML5/index.html
 cd ./Build/HTML5
 zip -r Outwit.zip ./*
