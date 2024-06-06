@@ -10,8 +10,8 @@ void draw_texture_with_size(Texture2D texture, const Vector2 origin, const Vecto
 Texture2D kaboom_img;
 RenderTexture2D render_texture;
 
-#define RESOLUTION_WIDTH  3840
-#define RESOLUTION_HEIGHT 2160
+#define RESOLUTION_WIDTH  1920
+#define RESOLUTION_HEIGHT 1080
 
 int main(void)
 {
@@ -61,8 +61,6 @@ void update_draw_frame(void)
         DrawText(text, pos_x, pos_y, font_size, LIGHTGRAY);
     }
     EndTextureMode();
-
-    //GenTextureMipmaps(&render_texture.texture);
 
     BeginDrawing();
         Rectangle source_rec = { 0.0f, 0.0f, (float)render_texture.texture.width, ((float)render_texture.texture.height) * -1.0f };
