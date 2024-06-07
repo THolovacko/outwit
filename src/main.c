@@ -1,6 +1,9 @@
 #include "raylib.h"
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
+#include <stdio.h> 
+
+#define DEBUG_MODE
 
 void update_draw_frame(void);
 EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *ui_event, void *user_data);
@@ -9,9 +12,11 @@ void draw_texture_with_size(Texture2D texture, const Vector2 origin, const Vecto
 
 Texture2D kaboom_img;
 RenderTexture2D render_texture;
+Music music;
+float timePlayed = 0.0f;  // time played normalized [0.0f..1.0f]
 
-#define RESOLUTION_WIDTH  1920
-#define RESOLUTION_HEIGHT 1080
+#define RESOLUTION_WIDTH  808
+#define RESOLUTION_HEIGHT 414
 
 int main(void)
 {
@@ -29,7 +34,11 @@ int main(void)
 
     render_texture = LoadRenderTexture(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
     SetTextureFilter(render_texture.texture, TEXTURE_FILTER_BILINEAR);
-    kaboom_img = LoadTexture("resources/kaboom.png");
+    kaboom_img = LoadTexture("resources/crystal.png");
+
+    InitAudioDevice();
+    music = LoadMusicStream("resources/promised_land.mp3");
+    PlayMusicStream(music);
 
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, resize_callback);
     emscripten_set_main_loop(update_draw_frame, 0, 1);
@@ -42,6 +51,10 @@ int main(void)
 
 void update_draw_frame(void)
 {
+    UpdateMusicStream(music);
+    timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
+    if (timePlayed > 1.0f) timePlayed = 1.0f;
+
     BeginTextureMode(render_texture);
     {
         ClearBackground(BLACK);
@@ -66,6 +79,14 @@ void update_draw_frame(void)
         Rectangle source_rec = { 0.0f, 0.0f, (float)render_texture.texture.width, ((float)render_texture.texture.height) * -1.0f };
         Rectangle dest_rec   = { 0.0f, 0.0f, GetScreenWidth(), GetScreenHeight() };
         DrawTexturePro(render_texture.texture, source_rec, dest_rec, (Vector2){ 0.0f, 0.0f }, 0.0f, WHITE);
+
+        #ifdef DEBUG_MODE
+        char screenSizeText[64];
+        snprintf(screenSizeText, sizeof(screenSizeText), "Screen Width: %d, Screen Height: %d", GetScreenWidth(), GetScreenHeight());
+        DrawText(screenSizeText, 10, 10, 20, YELLOW);
+
+        DrawFPS(10, 50);
+        #endif
     EndDrawing();
 }
 
