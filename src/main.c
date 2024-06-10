@@ -37,7 +37,7 @@ int main(void)
     kaboom_img = LoadTexture("resources/crystal.png");
 
     InitAudioDevice();
-    music = LoadMusicStream("resources/promised_land.mp3");
+    music = LoadMusicStream("resources/song18.mp3");
     PlayMusicStream(music);
 
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, resize_callback);

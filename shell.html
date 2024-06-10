@@ -82,6 +82,13 @@
                     return canvas;
                 })()
             };
+
+            window.addEventListener('keydown', function(event) {
+                // prevent the default spacebar action (scrolling the page)
+                if (event.code === 'Space') {
+                    event.preventDefault();
+                }
+            });
         </script>
         {{{ SCRIPT }}}
     </body>
