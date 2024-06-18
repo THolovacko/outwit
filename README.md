@@ -4,7 +4,7 @@
 ## Getting started
 1. Setup [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) (version 3.1.61)
 2. Setup AWS CLI (version aws-cli/2.16.10 Python/3.11.9 Darwin/23.5.0 source/arm64)
-3. Setup GO (version go1.22.4 darwin/arm64)
+3. Setup Go (version go1.22.4 darwin/arm64)
 4. Confirm you can use ```emcc``` and ```emrun``` from the command line
 5. Confirm you can run ```zip``` from the command line
 6. Build game with ```./build.sh``` from the root directory
