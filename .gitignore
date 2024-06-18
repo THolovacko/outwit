@@ -55,5 +55,8 @@ dkms.conf
 /Build
 .DS_Store
 *.swp
+function.zip
+bootstrap
 
 !libraylib.a
+!backend_functions/**/*.mod
