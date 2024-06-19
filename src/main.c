@@ -1,9 +1,5 @@
-#include "raylib.h"
-#include <emscripten/emscripten.h>
-#include <emscripten/html5.h>
-#include <stdio.h> 
-
-#define DEBUG_MODE
+#include "outwit.h"
+#include "main_menu.h"
 
 void update_draw_frame(void);
 EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *ui_event, void *user_data);
@@ -86,6 +82,8 @@ void update_draw_frame(void)
         DrawText(screenSizeText, 10, 10, 20, YELLOW);
 
         DrawFPS(10, 50);
+
+        test();
         #endif
     EndDrawing();
 }
