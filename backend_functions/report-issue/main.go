@@ -5,6 +5,8 @@ import (
   "encoding/json"
   "fmt"
   "os"
+  "log"
+  "time"
 
   "github.com/aws/aws-lambda-go/events"
   "github.com/aws/aws-lambda-go/lambda"
@@ -15,12 +17,8 @@ import (
 )
 
 type Request struct {
-  Public  string `json:"public"`
-  Private string `json:"private"`
-}
-
-type Response struct {
-  Available bool   `json:"available"`
+  Contact string `json:"contact"`
+  Issue   string `json:"issue"`
 }
 
 var dynamoDBClient *dynamodb.DynamoDB
@@ -45,56 +43,29 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
     return events.APIGatewayProxyResponse{StatusCode: 400}, err
   }
 
-  id := req.Public
+  now := time.Now().UTC()
+  key := fmt.Sprintf("%s_%s", req.Contact, now.Format("2006-01-02T15:04:05"))
 
-  input := &dynamodb.GetItemInput{
-    TableName: aws.String("Sessions"),
-    Key: map[string]*dynamodb.AttributeValue{
-      "id": {
-        S: aws.String(id),
-      },
-    },
-  }
-
-  result, err := dynamoDBClient.GetItem(input)
-  if err != nil {
-    return events.APIGatewayProxyResponse{StatusCode: 500}, err
-  }
-
-  if result.Item != nil {
-    return events.APIGatewayProxyResponse{
-      StatusCode: 200,
-      Body:       `{"available": false}`,
-    }, nil
-  }
-
-  itemInput := &dynamodb.PutItemInput{
-    TableName: aws.String("Sessions"),
+  input := &dynamodb.PutItemInput{
+    TableName: aws.String("Reported_Issues"),
     Item: map[string]*dynamodb.AttributeValue{
-      "id": {
-        S: aws.String(id),
+      "contact_datetime": {
+        S: aws.String(key),
       },
-      "private_id": {
-        S: aws.String(req.Private),
+      "issue": {
+        S: aws.String(req.Issue),
       },
     },
   }
 
-  _, err = dynamoDBClient.PutItem(itemInput)
+  _, err = dynamoDBClient.PutItem(input)
   if err != nil {
-    return events.APIGatewayProxyResponse{StatusCode: 500}, err
+    log.Printf("Failed to put item into DynamoDB: %v", err)
+    return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to create issue"}, err
   }
 
-  resp := Response{Available: true}
-  respBody, err := json.Marshal(resp)
-  if err != nil {
-    return events.APIGatewayProxyResponse{StatusCode: 500}, err
-  }
-
-  return events.APIGatewayProxyResponse{
-    StatusCode: 200,
-    Body:       string(respBody),
-  }, nil
+  responseBody := fmt.Sprintf("Successfully added issue for contact %s", req.Contact)
+  return events.APIGatewayProxyResponse{StatusCode: 200, Body: responseBody}, nil
 }
 
 func main() {
