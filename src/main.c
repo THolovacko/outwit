@@ -1,18 +1,29 @@
 #include "outwit.h"
-#include "main_menu.h"
+#include "menu_screen.h"
+#include <unistd.h>
+#include <emscripten/wasm_worker.h>
 
 void update_draw_frame(void);
 EM_BOOL resize_callback(int event_type, const EmscriptenUiEvent *ui_event, void *user_data);
 void request_fullscreen();
 void draw_texture_with_size(Texture2D texture, const Vector2 origin, const Vector2 size);
 
-Texture2D kaboom_img;
 RenderTexture2D render_texture;
-Music music;
-float timePlayed = 0.0f;  // time played normalized [0.0f..1.0f]
+//Music music;
+//float timePlayed = 0.0f;  // time played normalized [0.0f..1.0f]
+
+Menu_Screen menu_screen;
 
 #define RESOLUTION_WIDTH  808
 #define RESOLUTION_HEIGHT 414
+
+/*/
+void load_game_task() {
+    sleep(3);
+    init_menu_screen(&menu_screen);
+    is_loading_mode = false;
+}
+*/
 
 int main(void)
 {
@@ -30,11 +41,12 @@ int main(void)
 
     render_texture = LoadRenderTexture(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
     SetTextureFilter(render_texture.texture, TEXTURE_FILTER_BILINEAR);
-    kaboom_img = LoadTexture("resources/crystal.png");
 
-    InitAudioDevice();
-    music = LoadMusicStream("resources/song18.mp3");
-    PlayMusicStream(music);
+    //InitAudioDevice();
+    //music = LoadMusicStream("resources/song18.mp3");
+    //PlayMusicStream(music);
+
+    init_menu_screen(&menu_screen);
 
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, resize_callback);
     emscripten_set_main_loop(update_draw_frame, 0, 1);
@@ -47,27 +59,18 @@ int main(void)
 
 void update_draw_frame(void)
 {
-    UpdateMusicStream(music);
-    timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
-    if (timePlayed > 1.0f) timePlayed = 1.0f;
+    //UpdateMusicStream(music);
+    //timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
+    //if (timePlayed > 1.0f) timePlayed = 1.0f;
 
     BeginTextureMode(render_texture);
     {
         ClearBackground(BLACK);
 
-        const int resolution_width  = render_texture.texture.width;
-        const int resolution_height = render_texture.texture.height;
+        //const int resolution_width  = render_texture.texture.width;
+        //const int resolution_height = render_texture.texture.height;
 
-        const char *text = "Hello, World";
-        int font_size    = 60;
-
-        int text_width = MeasureText(text, font_size);
-
-        int pos_x = (resolution_width  - text_width) / 2;
-        int pos_y = (resolution_height - font_size)  / 2;
-
-        draw_texture_with_size(kaboom_img, (Vector2){ 0.0f, 0.0f }, (Vector2){ kaboom_img.width, kaboom_img.height });
-        DrawText(text, pos_x, pos_y, font_size, LIGHTGRAY);
+        render_menu_screen(&menu_screen);
     }
     EndTextureMode();
 
@@ -82,8 +85,6 @@ void update_draw_frame(void)
         DrawText(screenSizeText, 10, 10, 20, YELLOW);
 
         DrawFPS(10, 50);
-
-        test();
         #endif
     EndDrawing();
 }

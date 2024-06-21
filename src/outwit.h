@@ -6,6 +6,6 @@
 #include <emscripten/html5.h>
 #include <stdio.h> 
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 #endif // OUTWIT_H
