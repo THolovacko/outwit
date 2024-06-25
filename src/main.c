@@ -1,5 +1,4 @@
 #include "outwit.h"
-#include "menu_screen.h"
 #include <unistd.h>
 #include <emscripten/wasm_worker.h>
 
@@ -12,10 +11,7 @@ RenderTexture2D render_texture;
 //Music music;
 //float timePlayed = 0.0f;  // time played normalized [0.0f..1.0f]
 
-Menu_Screen menu_screen;
-
-#define RESOLUTION_WIDTH  808
-#define RESOLUTION_HEIGHT 414
+Game_State game_state;
 
 /*/
 void load_game_task() {
@@ -46,7 +42,7 @@ int main(void)
     //music = LoadMusicStream("resources/song18.mp3");
     //PlayMusicStream(music);
 
-    init_menu_screen(&menu_screen);
+    init_game_state();
 
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, resize_callback);
     emscripten_set_main_loop(update_draw_frame, 0, 1);
@@ -63,6 +59,10 @@ void update_draw_frame(void)
     //timePlayed = GetMusicTimePlayed(music)/GetMusicTimeLength(music);
     //if (timePlayed > 1.0f) timePlayed = 1.0f;
 
+    game_state.resolution_width_scale  = (float)render_texture.texture.width / (float)GetScreenWidth();
+    game_state.resolution_height_scale = (float)render_texture.texture.height / (float)GetScreenHeight();
+    update_game_state();
+
     BeginTextureMode(render_texture);
     {
         ClearBackground(BLACK);
@@ -70,7 +70,7 @@ void update_draw_frame(void)
         //const int resolution_width  = render_texture.texture.width;
         //const int resolution_height = render_texture.texture.height;
 
-        render_menu_screen(&menu_screen);
+        render_menu_screen(&game_state.menu_screen);
     }
     EndTextureMode();
 
